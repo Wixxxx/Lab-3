@@ -1,0 +1,161 @@
+#include <iostream>
+#include <string>
+#include <vector>
+#include <fstream>
+#include <sstream>
+#include <clocale>
+#include <algorithm>
+#include <functional>
+#include <iterator>
+#include <list>
+using namespace std;
+
+string First_Word(string filename) {
+
+    string s;
+    ifstream ifs(filename);
+
+    if (ifs.is_open())
+    {  
+        ifs >> s;
+        ifs.close();
+        return s;
+    }
+    else
+       cout<< "Unable to open file" <<endl;
+}
+
+void Read_File(vector<string>& words, string filename) {
+
+   
+    ifstream ifs(filename);
+
+    if (ifs.is_open()) {
+        string s;
+
+        do {
+            ifs >> s;
+            words.push_back(s);
+        } while (!ifs.eof());
+
+        ifs.close();
+    }
+    else cout << "Unable to open file";
+}
+
+void Sort_Words(vector<string>& words) {
+
+    for (size_t i = 0; i < words.size(); i++)
+    {
+        if (ispunct(*words[i].crbegin()))
+            words[i].resize(words[i].size() - 1);
+    }
+
+}
+
+string Last_Letter(string s, char c) {
+
+   string temp;
+    istringstream ist(s);
+ 
+    while (ist >> temp)
+    {
+        if (*temp.rbegin() == c)
+            return temp + "\n";
+        else return "";
+    }
+    
+}
+
+string Last_String(string filename) {
+
+    fstream fin(filename, ios::in | ios::ate); // открываем файл для чтения, курсор в конце файла
+
+    if (!fin.is_open()) cout << "Error!" << endl;
+    else
+    {
+        int i;
+        i = fin.tellg(); // текущая позиция курсора
+        if (i == 0) cout << "File empty!\n"; // если файл пуст
+        else
+        {
+            char ch;
+            int flag = 0;
+            while (true) 
+            {
+                fin.seekg(-1, ios::cur); 
+                i = fin.tellg();
+                if (i == 0) break; 
+                ch = fin.peek();          
+                if (ch == '\n' && flag != 0) 
+                                           
+                {
+                    fin.seekg(2, ios::cur); 
+                    break;
+                }
+                flag = 1;
+            }
+
+            string str;
+            getline(fin, str); 
+
+            return str;
+        }
+    }
+
+}
+
+void Sort_Des_Alph(string s) {
+    list<string> last_string_words;
+    istringstream ist(s);
+    string tmp;
+    while (ist >> tmp)
+        last_string_words.push_back(tmp);
+    last_string_words.sort(greater<string>());
+    
+    copy(last_string_words.begin(), last_string_words.end(), ostream_iterator<string>(cout, "\n"));
+}
+
+int main()
+{
+	setlocale(LC_ALL, "ru");
+
+    vector<string> words;
+
+
+	string filename = "";
+	cout << "Введите название файла: ";
+	cin >> filename;
+
+    ifstream ifs(filename);
+
+    string s;
+    do {
+        ifs >> s;
+        words.push_back(s);
+    } 
+    while (!ifs.eof());
+
+    ifs.close();
+    
+    cout << endl;
+    cout << "First word: " << First_Word(filename) << endl;
+    Sort_Words(words);
+    cout << endl;
+    cout << "Words that ended 'o' or 'g': " << endl;
+    for (size_t i = 0; i < words.size(); i++)
+    {
+       cout << Last_Letter(words[i], 'o');
+       cout << Last_Letter(words[i], 'g');
+    }
+
+    cout << endl;
+    string laststring = Last_String(filename);
+ 
+    cout << "Last string words: " << laststring << endl;
+
+    cout << endl << "Sorted descendant:" << endl;
+    Sort_Des_Alph(laststring);
+
+}
+
